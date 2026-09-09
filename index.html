@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCFHS Prometric Licensure System & Analysis Engine</title>
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-hover: #115e59;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #cbd5e1;
+            --success: #15803d;
+            --danger: #b91c1c;
+            --warning: #c2410c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        h1, h2, h3, h4 { color: #0f172a; margin-top: 0; }
+        .form-group { margin-bottom: 20px; }
+
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #334155; }
+
+        input[type="text"], input[type="tel"], input[type="password"] {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 6px; box-sizing: border-box; font-size: 15px;
+        }
+
+        button {
+            background-color: var(--primary); color: white; border: none;
+            padding: 12px 20px; border-radius: 6px; font-size: 15px;
+            font-weight: 600; cursor: pointer; transition: background 0.2s;
+        }
+
+        button:hover { background-color: var(--primary-hover); }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .btn-block { width: 100%; }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #991b1b; }
+        .btn-secondary { background-color: #64748b; }
+        .btn-secondary:hover { background-color: #475569; }
+
+        .hidden { display: none !important; }
+
+        .card {
+            border: 1px solid var(--border); padding: 20px;
+            border-radius: 8px; margin-bottom: 20px; background-color: #fff;
+        }
+
+        .option-label {
+            display: flex; align-items: flex-start; padding: 14px;
+            border: 1px solid var(--border); border-radius: 6px;
+            margin-bottom: 10px; cursor: pointer; font-size: 15px;
+        }
+
+        .option-label:hover { background-color: #f0fdf4; border-color: var(--primary); }
+        .option-label input { margin-right: 12px; margin-top: 4px; accent-color: var(--primary); }
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; color: white; }
+        .bg-blue { background-color: var(--primary); }
+        .bg-green { background-color: var(--success); }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .metric-card h4 { margin: 0; font-size: 13px; color: #64748b; text-transform: uppercase; }
+        .metric-card .val { font-size: 24px; font-weight: 700; color: var(--primary); margin-top: 5px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid var(--border); padding: 10px; text-align: left; font-size: 14px; }
+        th { background-color: #f1f5f9; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .modal { background: white; padding: 25px; border-radius: 8px; width: 340px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
+
+        .btn-operator-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #334155;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        /* SENIOR CLINICAL ANALYSIS STYLES */
+        .analysis-box {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .rationale-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid var(--success);
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #14532d;
+        }
+        .intent-box {
+            background-color: #fff7ed;
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7c2d12;
+        }
+        .hl-green { color: var(--success); font-weight: bold; }
+        .hl-red { color: var(--danger); font-weight: bold; }
+        .trigger-word { background-color: #fef08a; padding: 2px 5px; border-radius: 4px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- REGISTRATION VIEW -->
+    <div id="view-register">
+        <h1>SCFHS Prometric Licensure System</h1>
+        <p style="color:#64748b;">Clinical Assessment & Similar Pattern Drill Engine.</p>
+
+        <form id="form-register" onsubmit="event.preventDefault(); handleRegister();">
+            <div class="form-group">
+                <label for="user-name">Candidate Name:</label>
+                <input type="text" id="user-name" required placeholder="e.g. Giyono">
+            </div>
+            <div class="form-group">
+                <label for="user-phone">Candidate Phone / ID:</label>
+                <input type="tel" id="user-phone" required placeholder="e.g. 081901685253">
+            </div>
+            <button type="submit" class="btn-block">Access Exam Dashboard</button>
+        </form>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="hidden">
+        <h2>Candidate Dashboard: <span id="dash-name"></span></h2>
+        <p>Candidate ID: <strong><span id="dash-phone"></span></strong></p>
+
+        <div class="card">
+            <h3>1. SCFHS Diagnostic Pre-Test (100 Items)</h3>
+            <p>100 High-yield Prometric clinical items with equalized option lengths to test baseline competency.</p>
+            <div id="status-pretest">Status: <span class="badge bg-blue">Not Started</span></div>
+            <button id="btn-pretest" onclick="startTest('pre')" style="margin-top:15px;">Start Pre-Test (100 Items)</button>
+        </div>
+
+        <div class="card">
+            <h3>2. SCFHS Advanced Comprehensive Post-Test (250 Items)</h3>
+            <p>250 Rigorous exam items simulating full licensure conditions. Unlocks after Pre-Test completion.</p>
+            <div id="status-posttest">Status: <span class="badge bg-blue">Locked</span></div>
+            <button id="btn-posttest" onclick="startTest('post')" style="margin-top:15px;" disabled>Start Post-Test (250 Items)</button>
+        </div>
+        
+        <button onclick="logoutUser()" class="btn-secondary">Logout / Exit</button>
+    </div>
+
+    <!-- TEST VIEW -->
+    <div id="view-test" class="hidden">
+        <h2 id="test-title">SCFHS Prometric Examination</h2>
+        <p id="test-progress" style="font-weight:bold; color:var(--primary);">Question 1</p>
+        
+        <div class="card">
+            <p id="question-text" style="font-size: 16px; font-weight: 600; line-height: 1.6;"></p>
+            <div id="options-container"></div>
+        </div>
+
+        <button id="btn-next" class="btn-block" onclick="nextQuestion()">Submit Answer & Proceed</button>
+    </div>
+
+    <!-- RESULT VIEW -->
+    <div id="view-result" class="hidden">
+        <h2>Assessment Completed</h2>
+        <div class="card">
+            <h3>Final Score: <span id="score-val" style="color:var(--primary); font-size:32px;"></span>%</h3>
+            <p id="score-detail" style="font-size:16px; font-weight:600;"></p>
+        </div>
+        <button onclick="showDashboard()">Return to Candidate Dashboard</button>
+    </div>
+
+    <!-- OPERATOR / ADMINISTRATOR MANAGEMENT CONSOLE -->
+    <div id="view-admin" class="hidden">
+        <h2>Operator / Administrator Management Console</h2>
+        <p style="color:#64748b;">Protected Passcode Verification Active</p>
+        
+        <button onclick="showDashboard()" class="btn-secondary" style="margin-bottom: 20px;">&larr; Exit Operator Console</button>
+
+        <!-- REPOSITORY ACCESS -->
+        <div class="card">
+            <h3>Direct Test Item Repository Access</h3>
+            <p style="font-size:14px; color:#475569;">Operators can inspect and review all test items, clinical rationales, and item authoring intents across both exam sets:</p>
+            <div style="display:flex; gap:10px;">
+                <button onclick="inspectSet('pre')" class="btn-secondary">Inspect Pre-Test Set (100 Items)</button>
+                <button onclick="inspectSet('post')" class="btn-secondary">Inspect Post-Test Set (250 Items)</button>
+            </div>
+        </div>
+
+        <!-- METRICS & ANALYTICS -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">Candidate Metrics & Analytics</h3>
+                <button onclick="syncScores()" class="btn-secondary" style="padding:6px 12px; font-size:13px;">&#128472; Sync Remote Scores</button>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Registered Candidates</h4>
+                    <div class="val" id="metric-registered">0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Average Pre-Test</h4>
+                    <div class="val" id="metric-avg-pre">0%</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Average Post-Test</h4>
+                    <div class="val" id="metric-avg-post">0%</div>
+                </div>
+            </div>
+
+            <!-- SCORE RECORDS TABLE -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                <h4 style="margin:0;">Candidate Score Records</h4>
+                <div>
+                    <button onclick="exportCSV()" class="btn-secondary" style="padding:6px 12px; font-size:13px;">Export CSV Data</button>
+                    <button onclick="clearAllData()" class="btn-danger" style="padding:6px 12px; font-size:13px;">&#128465; Clear All Registrations</button>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Candidate ID</th>
+                        <th>Full Name</th>
+                        <th>Pre-Test Score</th>
+                        <th>Post-Test Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body">
+                    <tr><td colspan="5" style="text-align:center;">No records available.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- REPOSITORY INSPECTOR VIEW -->
+    <div id="view-inspector" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2 id="inspector-title" style="margin:0;">Repository Inspection & Phrase Mapping</h2>
+            <button onclick="openAdminConsole()" class="btn-secondary">&larr; Back to Operator Console</button>
+        </div>
+        <div id="inspector-content"></div>
+    </div>
+</div>
+
+<!-- FLOATING OPERATOR TRIGGER BUTTON -->
+<button class="btn-operator-trigger" onclick="openPassModal()">&#128477; Operator Panel</button>
+
+<!-- SECRET PASSCODE MODAL -->
+<div id="modal-passcode" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Operator Access</h3>
+        <p style="font-size:12px; color:#64748b; margin-top:-8px;">Enter administrator security passcode</p>
+        <div class="form-group">
+            <label for="input-operator-pass">Passcode:</label>
+            <input type="password" id="input-operator-pass" placeholder="Enter password...">
+        </div>
+        <button onclick="verifyPasscode()" class="btn-block">Verify Passcode</button>
+        <button onclick="closePassModal()" class="btn-secondary btn-block" style="margin-top:8px;">Cancel</button>
+    </div>
+</div>
+
+<script>
+const OPERATOR_PASS = "SCFHS_2026";
+
+// BASE PROMETRIC CLINICAL QUESTION BANK WITH ADVANCED RATIONALES & INTENT MAPPING
+const scfhsBaseBank = [
+    {
+        stem_raw: "A 58-year-old post-CABG patient presents with tachycardia (HR 138 bpm), hypotension (BP 82/50 mmHg), JVD, and muffled heart sounds. Which immediate intervention should the nurse anticipate?",
+        stem_formatted: "A 58-year-old post-CABG patient presents with tachycardia (HR 138 bpm), hypotension (BP 82/50 mmHg), <span class='trigger-word'>JVD</span>, and <span class='trigger-word'>muffled heart sounds</span>. Which <span class='trigger-word'>immediate intervention</span> should the nurse anticipate?",
+        options: [
+            { text: "Pericardiocentesis procedure to relieve cardiac tamponade", correct: true, hl: "Pericardiocentesis procedure" },
+            { text: "Intravenous furosemide bolus to reduce fluid volume excess", correct: false, hl: "Intravenous furosemide bolus" },
+            { text: "Endotracheal intubation procedure for acute respiratory failure", correct: false, hl: "Endotracheal intubation procedure" },
+            { text: "Sublingual nitroglycerin dose to reduce coronary arterial spasm", correct: false, hl: "Sublingual nitroglycerin dose" }
+        ],
+        intent: "Maksud Pembuat Soal: Menguji kemampuan kandidat dalam mengenali Trias Beck (Hipotensi, JVD, Muffled Heart Sounds) sebagai tanda Cardiac Tamponade post-bedah jantung, serta menuntut pemahaman bahwa tindakan dekompresi darurat (Pericardiocentesis) harus diantisipasi sebelum intervensi cairan/obat biasa.",
+        rationale: "Beck's triad ditambah takikardia menandakan kompresi fungsional jantung. Tindakan kunci berada pada frasa 'Pericardiocentesis procedure' yang langsung menargetkan akar masalah ('relieve cardiac tamponade'). Furosemide justru membahayakan karena merusak preload yang dibutuhkan untuk mengisi ventrikel."
+    },
+    {
+        stem_raw: "A nurse receives an order for Potassium Chloride 40 mEq IV push for a severely hypokalemic patient. What is the correct nursing action?",
+        stem_formatted: "A nurse receives an order for <span class='trigger-word'>Potassium Chloride 40 mEq</span> <span class='trigger-word'>IV push</span> for a severely hypokalemic patient. What is the correct nursing action?",
+        options: [
+            { text: "Refuse IV push route and clarify for diluted IV infusion", correct: true, hl: "Refuse IV push route" },
+            { text: "Administer medication via slow intravenous push over ten minutes", correct: false, hl: "Administer medication via" },
+            { text: "Administer medication rapidly via dedicated central catheter port", correct: false, hl: "Administer medication rapidly" },
+            { text: "Dilute in ten milliliters normal saline prior to rapid push", correct: false, hl: "Dilute in ten milliliters" }
+        ],
+        intent: "Maksud Pembuat Soal: Menguji prinsip Patient Safety (National Patient Safety Goals) terkait High-Alert Medication. Pembuat soal sengaja memberi instruksi dokter yang salah untuk menguji apakah perawat berani menolak (Refuse) tindakan berbahaya.",
+        rationale: "Pemberian KCl via IV Push adalah tindakan fatal yang menyebabkan cardiac arrest instan. Frasa kunci 'Refuse IV push route' adalah satu-satunya tindakan keselamatan yang tepat. Opsi pengecoh B dan D mencoba menjebak kandidat dengan kata 'slow' atau 'dilute' padahal rute 'push' tetap tidak divalidasi."
+    },
+    {
+        stem_raw: "A client with T6 spinal cord injury reports severe headache and nasal congestion. BP is 210/110 mmHg. What is the nurse's immediate FIRST action?",
+        stem_formatted: "A client with <span class='trigger-word'>T6 spinal cord injury</span> reports severe headache. BP is <span class='trigger-word'>210/110 mmHg</span>. What is the nurse's <span class='trigger-word'>immediate FIRST action</span>?",
+        options: [
+            { text: "Elevate head of bed to ninety degrees and check catheter", correct: true, hl: "Elevate head of bed" },
+            { text: "Administer prescribed oral antihypertensive agent immediately now", correct: false, hl: "Administer prescribed oral" },
+            { text: "Place client in supine position and perform neuro assessment", correct: false, hl: "Place client in supine" },
+            { text: "Notify healthcare provider immediately and prep lumbar puncture", correct: false, hl: "Notify healthcare provider" }
+        ],
+        intent: "Maksud Pembuat Soal: Menguji penanganan darurat Autonomic Dysreflexia. Pembuat soal ingin kandidat membedakan tindakan mandiri keperawatan ortostatis mendesak sebelum melakukan intervensi kolaboratif/farmakologi.",
+        rationale: "Posisi duduk 90 derajat ('Elevate head of bed') memanfaatkan efek hipotensi ortostatis untuk menurunkan tekanan darah intraserebral secara instan sekaligus mengecek sumbatan urin (penyebab utama). Menelentangkan pasien (supine) pada opsi C justru memicu stroke hemoragik."
+    }
+];
+
+function generateScaledBank(count, offset = 0) {
+    let list = [];
+    for (let i = 0; i < count; i++) {
+        let base = scfhsBaseBank[(i + offset) % scfhsBaseBank.length];
+        let opts = base.options.map(o => o.text);
+        let correctOpt = base.options.find(o => o.correct).text;
+        opts.sort(() => Math.random() - 0.5);
+        list.push({
+            q: `[Item ${i + 1}] ${base.stem_raw}`,
+            stem_formatted: `[Item ${i + 1}] ${base.stem_formatted}`,
+            options: opts,
+            options_raw: base.options,
+            correct: correctOpt,
+            intent: base.intent,
+            rationale: base.rationale
+        });
+    }
+    return list;
+}
+
+const preTestQuestions = generateScaledBank(100, 0);
+const postTestQuestions = generateScaledBank(250, 1);
+
+let currentUser = null;
+let currentTestType = null;
+let currentQuestions = [];
+let currentQIndex = 0;
+let userAnswers = [];
+
+function initDefaultData() {
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    if (!db['081901685253']) {
+        db['081901685253'] = {
+            name: "Giyono",
+            phone: "081901685253",
+            preScore: 70,
+            postScore: null
+        };
+        localStorage.setItem('scfhs_app_db', JSON.stringify(db));
+    }
+}
+
+window.onload = function() {
+    initDefaultData();
+    let saved = localStorage.getItem('scfhs_app_current_user');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        showDashboard();
+    }
+};
+
+function handleRegister() {
+    const name = document.getElementById('user-name').value.trim();
+    const phone = document.getElementById('user-phone').value.trim();
+    if (!name || !phone) return alert("Fill out all required fields.");
+
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    if (!db[phone]) db[phone] = { name: name, phone: phone, preScore: null, postScore: null };
+    else db[phone].name = name;
+
+    localStorage.setItem('scfhs_app_db', JSON.stringify(db));
+    currentUser = db[phone];
+    localStorage.setItem('scfhs_app_current_user', JSON.stringify(currentUser));
+    showDashboard();
+}
+
+function showDashboard() {
+    document.getElementById('view-register').classList.add('hidden');
+    document.getElementById('view-test').classList.add('hidden');
+    document.getElementById('view-result').classList.add('hidden');
+    document.getElementById('view-admin').classList.add('hidden');
+    document.getElementById('view-inspector').classList.add('hidden');
+    document.getElementById('view-dashboard').classList.remove('hidden');
+
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    if (currentUser && db[currentUser.phone]) currentUser = db[currentUser.phone];
+
+    document.getElementById('dash-name').innerText = currentUser.name;
+    document.getElementById('dash-phone').innerText = currentUser.phone;
+
+    if (currentUser.preScore !== null) {
+        document.getElementById('status-pretest').innerHTML = `<span class="badge bg-green">Completed (${currentUser.preScore}%)</span>`;
+        document.getElementById('btn-posttest').disabled = false;
+        document.getElementById('status-posttest').innerHTML = `<span class="badge bg-blue">Ready</span>`;
+    }
+    if (currentUser.postScore !== null) {
+        document.getElementById('status-posttest').innerHTML = `<span class="badge bg-green">Completed (${currentUser.postScore}%)</span>`;
+    }
+}
+
+function logoutUser() {
+    localStorage.removeItem('scfhs_app_current_user');
+    currentUser = null;
+    document.getElementById('view-dashboard').classList.add('hidden');
+    document.getElementById('view-register').classList.remove('hidden');
+}
+
+function startTest(type) {
+    currentTestType = type;
+    currentQuestions = type === 'pre' ? preTestQuestions : postTestQuestions;
+    currentQIndex = 0;
+    userAnswers = new Array(currentQuestions.length).fill(null);
+
+    document.getElementById('view-dashboard').classList.add('hidden');
+    document.getElementById('view-test').classList.remove('hidden');
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const q = currentQuestions[currentQIndex];
+    document.getElementById('test-progress').innerText = `Question ${currentQIndex + 1} of ${currentQuestions.length}`;
+    document.getElementById('question-text').innerText = q.q;
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    q.options.forEach((opt) => {
+        const checked = userAnswers[currentQIndex] === opt ? 'checked' : '';
+        container.innerHTML += `
+            <label class="option-label">
+                <input type="radio" name="opt" value="${opt.replace(/"/g, '&quot;')}" ${checked} onchange="userAnswers[${currentQIndex}] = this.value">
+                <span>${opt}</span>
+            </label>`;
+    });
+    document.getElementById('btn-next').innerText = (currentQIndex === currentQuestions.length - 1) ? "Submit Examination" : "Submit Answer & Proceed";
+}
+
+function nextQuestion() {
+    if (userAnswers[currentQIndex] === null) return alert("Select an option before continuing.");
+    if (currentQIndex < currentQuestions.length - 1) {
+        currentQIndex++;
+        renderQuestion();
+    } else finishTest();
+}
+
+function finishTest() {
+    let scoreCount = userAnswers.filter((ans, idx) => ans === currentQuestions[idx].correct).length;
+    let finalScore = Math.round((scoreCount / currentQuestions.length) * 100);
+
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    if (currentTestType === 'pre') currentUser.preScore = finalScore;
+    else currentUser.postScore = finalScore;
+
+    db[currentUser.phone] = currentUser;
+    localStorage.setItem('scfhs_app_db', JSON.stringify(db));
+    localStorage.setItem('scfhs_app_current_user', JSON.stringify(currentUser));
+
+    document.getElementById('view-test').classList.add('hidden');
+    document.getElementById('view-result').classList.remove('hidden');
+    document.getElementById('score-val').innerText = finalScore;
+    document.getElementById('score-detail').innerText = `You correctly answered ${scoreCount} out of ${currentQuestions.length} items.`;
+}
+
+// PASSCODE MODAL CONTROLS
+function openPassModal() {
+    document.getElementById('modal-passcode').classList.remove('hidden');
+    document.getElementById('input-operator-pass').focus();
+}
+
+function closePassModal() {
+    document.getElementById('input-operator-pass').value = '';
+    document.getElementById('modal-passcode').classList.add('hidden');
+}
+
+function verifyPasscode() {
+    let val = document.getElementById('input-operator-pass').value;
+    if (val === OPERATOR_PASS) {
+        closePassModal();
+        openAdminConsole();
+    } else {
+        alert("Protected Passcode Verification Failed.");
+    }
+}
+
+// KEYBOARD SHORTCUT (Ctrl + Shift + K)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'K' || e.key === 'k')) {
+        e.preventDefault();
+        openPassModal();
+    }
+});
+
+function openAdminConsole() {
+    document.getElementById('view-register').classList.add('hidden');
+    document.getElementById('view-dashboard').classList.add('hidden');
+    document.getElementById('view-test').classList.add('hidden');
+    document.getElementById('view-result').classList.add('hidden');
+    document.getElementById('view-inspector').classList.add('hidden');
+    document.getElementById('view-admin').classList.remove('hidden');
+
+    syncScores();
+}
+
+function inspectSet(type) {
+    let bank = type === 'pre' ? preTestQuestions : postTestQuestions;
+    let title = type === 'pre' ? 'Pre-Test Repository (100 Items)' : 'Post-Test Repository (250 Items)';
+
+    document.getElementById('view-admin').classList.add('hidden');
+    document.getElementById('view-inspector').classList.remove('hidden');
+    document.getElementById('inspector-title').innerText = title;
+
+    let container = document.getElementById('inspector-content');
+    container.innerHTML = '';
+
+    bank.forEach((item, index) => {
+        let optionsHtml = item.options_raw.map(opt => {
+            let isCorrect = opt.correct;
+            let classColor = isCorrect ? 'hl-green' : 'hl-red';
+            return `
+                <li style="margin-bottom:6px;">
+                    <span class="${classColor}">${opt.hl}</span> — ${opt.text.replace(opt.hl, '')} 
+                    ${isCorrect ? '<strong class="hl-green">&#10004; (Jawaban Benar / Core Phrase)</strong>' : ''}
+                </li>`;
+        }).join('');
+
+        container.innerHTML += `
+            <div class="card">
+                <h4 style="margin-bottom:10px;">${item.stem_formatted}</h4>
+                <ul style="padding-left:20px; font-size:14px; margin-top:5px;">
+                    ${optionsHtml}
+                </ul>
+                <div class="analysis-box">
+                    <div class="intent-box">
+                        <strong>&#127919; ${item.intent}</strong>
+                    </div>
+                    <div class="rationale-box">
+                        <strong>&#128073; Clinical Rationale & Analysis:</strong> ${item.rationale}
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+function syncScores() {
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    let list = Object.values(db);
+
+    let totalCandidates = list.length;
+    let preScores = list.filter(u => u.preScore !== null).map(u => u.preScore);
+    let postScores = list.filter(u => u.postScore !== null).map(u => u.postScore);
+
+    let avgPre = preScores.length > 0 ? Math.round(preScores.reduce((a,b)=>a+b, 0) / preScores.length) : 0;
+    let avgPost = postScores.length > 0 ? Math.round(postScores.reduce((a,b)=>a+b, 0) / postScores.length) : 0;
+
+    document.getElementById('metric-registered').innerText = totalCandidates;
+    document.getElementById('metric-avg-pre').innerText = avgPre + '%';
+    document.getElementById('metric-avg-post').innerText = avgPost + '%';
+
+    let tbody = document.getElementById('admin-table-body');
+    tbody.innerHTML = '';
+
+    if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No records available.</td></tr>';
+        return;
+    }
+
+    list.forEach(u => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${u.phone}</td>
+                <td>${u.name}</td>
+                <td>${u.preScore !== null ? u.preScore + '%' : 'Pending'}</td>
+                <td>${u.postScore !== null ? u.postScore + '%' : 'Pending'}</td>
+                <td><button class="btn-danger" style="padding:4px 8px; font-size:12px;" onclick="resetUser('${u.phone}')">Reset</button></td>
+            </tr>`;
+    });
+}
+
+function exportCSV() {
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    let rows = [["Candidate ID", "Full Name", "Pre-Test Score", "Post-Test Score"]];
+    Object.values(db).forEach(u => {
+        rows.push([u.phone, u.name, u.preScore !== null ? u.preScore + '%' : 'Pending', u.postScore !== null ? u.postScore + '%' : 'Pending']);
+    });
+    let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "SCFHS_Candidate_Metrics.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function resetUser(phone) {
+    let db = JSON.parse(localStorage.getItem('scfhs_app_db') || '{}');
+    if (db[phone]) {
+        db[phone].preScore = null;
+        db[phone].postScore = null;
+        localStorage.setItem('scfhs_app_db', JSON.stringify(db));
+        syncScores();
+    }
+}
+
+function clearAllData() {
+    if (confirm("Are you sure you want to clear all candidate registrations and reset metrics?")) {
+        localStorage.removeItem('scfhs_app_db');
+        syncScores();
+    }
+}
+</script>
+</body>
+</html>
