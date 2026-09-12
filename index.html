@@ -4703,7 +4703,7 @@ const scfhsUniqueRepository = [
         intent: "Menguji tindakan etis dan profesional saat terjadi insiden kesalahan medis.",
         rationale: "Keselamatan pasien adalah prioritas utama. Perawat wajib segera mengkaji kondisi pasien, melapor ke dokter, memantau efek samping, dan mengisi laporan insiden (*incident report*)."
     },
-  {
+    {
         id: "BUR-04",
         category: "Burn & Critical Care",
         stem_raw: "A patient in the emergent phase of severe burns develops a potassium level of 6.2 mEq/L. What is the cause of hyperkalemia in this phase?",
@@ -4719,6 +4719,9 @@ const scfhsUniqueRepository = [
     }
 ];
 
+// Password Operator
+const OPERATOR_PASS = "SCFHS_2026";
+
 let currentSet = [];
 let currentIndex = 0;
 let userScore = 0;
@@ -4727,7 +4730,10 @@ let registeredUser = null;
 function handleRegister() {
     const name = document.getElementById('user-name').value.trim();
     const phone = document.getElementById('user-phone').value.trim();
-    if (!name || !phone) return;
+    if (!name || !phone) {
+        alert('Harap isi Nama dan Nomor Telepon terlebih dahulu.');
+        return;
+    }
 
     registeredUser = { name, phone, preScore: null, postScore: null };
     document.getElementById('dash-name').innerText = name;
@@ -4747,13 +4753,23 @@ function showDashboard() {
 
 function logoutUser() {
     registeredUser = null;
-    document.getElementById('form-register').reset();
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-phone').value = '';
     document.getElementById('view-dashboard').classList.add('hidden');
     document.getElementById('view-register').classList.remove('hidden');
 }
 
 function startTest(type) {
-    currentSet = scfhsUniqueRepository.slice(0, 10);
+    // Pre-test mengambil hingga 100 soal, Post-test mengambil hingga 250 soal
+    const limit = (type === 'pre') ? 100 : 250;
+    currentSet = scfhsUniqueRepository.slice(0, limit);
+    
+    if (currentSet.length === 0) {
+        alert('Bank soal masih kosong.');
+        showDashboard();
+        return;
+    }
+
     currentIndex = 0;
     userScore = 0;
 
@@ -4805,7 +4821,7 @@ function nextQuestion() {
 function finishTest() {
     const percentage = Math.round((userScore / currentSet.length) * 100);
     document.getElementById('score-val').innerText = percentage;
-    document.getElementById('score-detail').innerText = `Benar ${userScore} dari ${currentIndex} soal.`;
+    document.getElementById('score-detail').innerText = `Benar ${userScore} dari ${currentSet.length} soal.`;
 
     if (registeredUser) {
         registeredUser.preScore = percentage;
@@ -4870,14 +4886,14 @@ function updateAdminTable() {
     `;
 }
 
-function inspectSet(type) {
+function inspectSet() {
     document.getElementById('view-admin').classList.add('hidden');
     document.getElementById('view-inspector').classList.remove('hidden');
     
     const container = document.getElementById('inspector-content');
     container.innerHTML = '';
 
-    scfhsUniqueRepository.forEach((item, index) => {
+    scfhsUniqueRepository.forEach((item) => {
         const box = document.createElement('div');
         box.className = 'card';
         box.innerHTML = `
