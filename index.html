@@ -121,7 +121,6 @@
             z-index: 100;
         }
 
-        /* SENIOR CLINICAL ANALYSIS STYLES */
         .analysis-box {
             background-color: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -156,7 +155,7 @@
     <!-- REGISTRATION VIEW -->
     <div id="view-register">
         <h1>SCFHS Prometric Licensure System</h1>
-        <p style="color:#64748b;">Clinical Assessment & Similar Pattern Drill Engine.</p>
+        <p style="color:#64748b;">Professional Clinical Assessment & Unique Item Engine.</p>
 
         <form id="form-register" onsubmit="event.preventDefault(); handleRegister();">
             <div class="form-group">
@@ -177,17 +176,17 @@
         <p>Candidate ID: <strong><span id="dash-phone"></span></strong></p>
 
         <div class="card">
-            <h3>1. SCFHS Diagnostic Pre-Test (100 Items)</h3>
-            <p>100 High-yield Prometric clinical items with equalized option lengths to test baseline competency.</p>
+            <h3>1. SCFHS Diagnostic Pre-Test</h3>
+            <p>High-yield Prometric clinical items covering core nursing domains to test baseline competency.</p>
             <div id="status-pretest">Status: <span class="badge bg-blue">Not Started</span></div>
-            <button id="btn-pretest" onclick="startTest('pre')" style="margin-top:15px;">Start Pre-Test (100 Items)</button>
+            <button id="btn-pretest" onclick="startTest('pre')" style="margin-top:15px;">Start Pre-Test Assessment</button>
         </div>
 
         <div class="card">
-            <h3>2. SCFHS Advanced Comprehensive Post-Test (250 Items)</h3>
-            <p>250 Rigorous exam items simulating full licensure conditions. Unlocks after Pre-Test completion.</p>
+            <h3>2. SCFHS Advanced Comprehensive Post-Test</h3>
+            <p>Rigorous exam items simulating full licensure conditions. Unlocks after Pre-Test completion.</p>
             <div id="status-posttest">Status: <span class="badge bg-blue">Locked</span></div>
-            <button id="btn-posttest" onclick="startTest('post')" style="margin-top:15px;" disabled>Start Post-Test (250 Items)</button>
+            <button id="btn-posttest" onclick="startTest('post')" style="margin-top:15px;" disabled>Start Post-Test Assessment</button>
         </div>
         
         <button onclick="logoutUser()" class="btn-secondary">Logout / Exit</button>
@@ -223,17 +222,14 @@
         
         <button onclick="showDashboard()" class="btn-secondary" style="margin-bottom: 20px;">&larr; Exit Operator Console</button>
 
-        <!-- REPOSITORY ACCESS -->
         <div class="card">
             <h3>Direct Test Item Repository Access</h3>
-            <p style="font-size:14px; color:#475569;">Operators can inspect and review all test items, clinical rationales, and item authoring intents across both exam sets:</p>
+            <p style="font-size:14px; color:#475569;">Inspect all unique clinical test items, clinical rationales, and item authoring intents:</p>
             <div style="display:flex; gap:10px;">
-                <button onclick="inspectSet('pre')" class="btn-secondary">Inspect Pre-Test Set (100 Items)</button>
-                <button onclick="inspectSet('post')" class="btn-secondary">Inspect Post-Test Set (250 Items)</button>
+                <button onclick="inspectSet('pre')" class="btn-secondary">Inspect Unique Item Bank</button>
             </div>
         </div>
 
-        <!-- METRICS & ANALYTICS -->
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h3 style="margin:0;">Candidate Metrics & Analytics</h3>
@@ -255,7 +251,6 @@
                 </div>
             </div>
 
-            <!-- SCORE RECORDS TABLE -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
                 <h4 style="margin:0;">Candidate Score Records</h4>
                 <div>
@@ -291,10 +286,8 @@
     </div>
 </div>
 
-<!-- FLOATING OPERATOR TRIGGER BUTTON -->
 <button class="btn-operator-trigger" onclick="openPassModal()">&#128477; Operator Panel</button>
 
-<!-- SECRET PASSCODE MODAL -->
 <div id="modal-passcode" class="modal-overlay hidden">
     <div class="modal">
         <h3>Operator Access</h3>
@@ -311,9 +304,11 @@
 <script>
 const OPERATOR_PASS = "SCFHS_2026";
 
-// BASE PROMETRIC CLINICAL QUESTION BANK WITH ADVANCED RATIONALES & INTENT MAPPING
-const scfhsBaseBank = [
+// AUTHENTIC UNIQUE PROMETRIC QUESTION REPOSITORY (NO DUPLICATIONS)
+const scfhsUniqueRepository = [
     {
+        id: "CAR-01",
+        category: "Adult Health - Cardiac Emergency",
         stem_raw: "A 58-year-old post-CABG patient presents with tachycardia (HR 138 bpm), hypotension (BP 82/50 mmHg), JVD, and muffled heart sounds. Which immediate intervention should the nurse anticipate?",
         stem_formatted: "A 58-year-old post-CABG patient presents with tachycardia (HR 138 bpm), hypotension (BP 82/50 mmHg), <span class='trigger-word'>JVD</span>, and <span class='trigger-word'>muffled heart sounds</span>. Which <span class='trigger-word'>immediate intervention</span> should the nurse anticipate?",
         options: [
@@ -322,23 +317,27 @@ const scfhsBaseBank = [
             { text: "Endotracheal intubation procedure for acute respiratory failure", correct: false, hl: "Endotracheal intubation procedure" },
             { text: "Sublingual nitroglycerin dose to reduce coronary arterial spasm", correct: false, hl: "Sublingual nitroglycerin dose" }
         ],
-        intent: "Maksud Pembuat Soal: Menguji kemampuan kandidat dalam mengenali Trias Beck (Hipotensi, JVD, Muffled Heart Sounds) sebagai tanda Cardiac Tamponade post-bedah jantung, serta menuntut pemahaman bahwa tindakan dekompresi darurat (Pericardiocentesis) harus diantisipasi sebelum intervensi cairan/obat biasa.",
-        rationale: "Beck's triad ditambah takikardia menandakan kompresi fungsional jantung. Tindakan kunci berada pada frasa 'Pericardiocentesis procedure' yang langsung menargetkan akar masalah ('relieve cardiac tamponade'). Furosemide justru membahayakan karena merusak preload yang dibutuhkan untuk mengisi ventrikel."
+        intent: "Menguji kemampuan mengenali Trias Beck (Hipotensi, JVD, Muffled Heart Sounds) sebagai tanda Cardiac Tamponade post-bedah jantung serta tindakan dekompresi darurat.",
+        rationale: "Beck's triad menandakan kompresi fungsional jantung. Pericardiocentesis langsung menargetkan dekompresi cairan perikardium. Furosemide berbahaya karena merusak preload."
     },
     {
-        stem_raw: "A nurse receives an order for Potassium Chloride 40 mEq IV push for a severely hypokalemic patient. What is the correct nursing action?",
-        stem_formatted: "A nurse receives an order for <span class='trigger-word'>Potassium Chloride 40 mEq</span> <span class='trigger-word'>IV push</span> for a severely hypokalemic patient. What is the correct nursing action?",
+        id: "SAF-01",
+        category: "Patient Safety & High-Alert Meds",
+        stem_raw: "A nurse receives a prescription for Potassium Chloride 40 mEq IV push for a severely hypokalemic patient. What is the correct nursing action?",
+        stem_formatted: "A nurse receives a prescription for <span class='trigger-word'>Potassium Chloride 40 mEq</span> <span class='trigger-word'>IV push</span> for a severely hypokalemic patient. What is the correct nursing action?",
         options: [
             { text: "Refuse IV push route and clarify for diluted IV infusion", correct: true, hl: "Refuse IV push route" },
             { text: "Administer medication via slow intravenous push over ten minutes", correct: false, hl: "Administer medication via" },
             { text: "Administer medication rapidly via dedicated central catheter port", correct: false, hl: "Administer medication rapidly" },
             { text: "Dilute in ten milliliters normal saline prior to rapid push", correct: false, hl: "Dilute in ten milliliters" }
         ],
-        intent: "Maksud Pembuat Soal: Menguji prinsip Patient Safety (National Patient Safety Goals) terkait High-Alert Medication. Pembuat soal sengaja memberi instruksi dokter yang salah untuk menguji apakah perawat berani menolak (Refuse) tindakan berbahaya.",
-        rationale: "Pemberian KCl via IV Push adalah tindakan fatal yang menyebabkan cardiac arrest instan. Frasa kunci 'Refuse IV push route' adalah satu-satunya tindakan keselamatan yang tepat. Opsi pengecoh B dan D mencoba menjebak kandidat dengan kata 'slow' atau 'dilute' padahal rute 'push' tetap tidak divalidasi."
+        intent: "Menguji prinsip Patient Safety terkait High-Alert Medication dan keberanian menolak instruksi berbahaya.",
+        rationale: "Pemberian KCl via IV Push memicu lethal cardiac arrest. KCl harus selalu diberikan melalui infus secara perlahan dan terencerkan."
     },
     {
-        stem_raw: "A client with T6 spinal cord injury reports severe headache and nasal congestion. BP is 210/110 mmHg. What is the nurse's immediate FIRST action?",
+        id: "NEU-01",
+        category: "Neurology Emergency",
+        stem_raw: "A client with T6 spinal cord injury reports severe pounding headache and nasal congestion. BP is 210/110 mmHg. What is the nurse's immediate FIRST action?",
         stem_formatted: "A client with <span class='trigger-word'>T6 spinal cord injury</span> reports severe headache. BP is <span class='trigger-word'>210/110 mmHg</span>. What is the nurse's <span class='trigger-word'>immediate FIRST action</span>?",
         options: [
             { text: "Elevate head of bed to ninety degrees and check catheter", correct: true, hl: "Elevate head of bed" },
@@ -346,33 +345,83 @@ const scfhsBaseBank = [
             { text: "Place client in supine position and perform neuro assessment", correct: false, hl: "Place client in supine" },
             { text: "Notify healthcare provider immediately and prep lumbar puncture", correct: false, hl: "Notify healthcare provider" }
         ],
-        intent: "Maksud Pembuat Soal: Menguji penanganan darurat Autonomic Dysreflexia. Pembuat soal ingin kandidat membedakan tindakan mandiri keperawatan ortostatis mendesak sebelum melakukan intervensi kolaboratif/farmakologi.",
-        rationale: "Posisi duduk 90 derajat ('Elevate head of bed') memanfaatkan efek hipotensi ortostatis untuk menurunkan tekanan darah intraserebral secara instan sekaligus mengecek sumbatan urin (penyebab utama). Menelentangkan pasien (supine) pada opsi C justru memicu stroke hemoragik."
+        intent: "Menguji penanganan darurat Autonomic Dysreflexia dan tindakan ortostatis keperawatan mendesak.",
+        rationale: "Meninggikan kepala tempat tidur 90 derajat memanfaatkan hipotensi ortostatis untuk menurunkan tekanan darah intraserebral dengan cepat sembari memeriksa retensi urin."
+    },
+    {
+        id: "END-01",
+        category: "Endocrine & Metabolism",
+        stem_raw: "A client with Type 1 Diabetes Mellitus presents with diaphoresis, tremors, confusion, and blood glucose of 45 mg/dL. The client is conscious. What is the priority nursing intervention?",
+        stem_formatted: "A client with Type 1 Diabetes presents with diaphoresis, tremors, and <span class='trigger-word'>glucose of 45 mg/dL</span>. The client is <span class='trigger-word'>conscious</span>. What is the priority intervention?",
+        options: [
+            { text: "Administer 15 to 20 grams of fast-acting simple oral carbohydrates", correct: true, hl: "Administer 15 to 20 grams" },
+            { text: "Administer 10 units of regular insulin via subcutaneous injection", correct: false, hl: "Administer 10 units" },
+            { text: "Infuse 500 mL of Normal Saline solution rapidly over one hour", correct: false, hl: "Infuse 500 mL" },
+            { text: "Place client in supine position and recheck glucose in two hours", correct: false, hl: "Place client in supine" }
+        ],
+        intent: "Menguji Protokol Rule of 15 pada manajemen hipoglikemia akut pada pasien sadar.",
+        rationale: "Pasien sadar dengan hipoglikemia membutuhkan 15-20 gram karbohidrat sederhana per oral. Pemberian insulin justru sangat fatal."
+    },
+    {
+        id: "RES-01",
+        category: "Respiratory & Critical Care",
+        stem_raw: "A COPD patient receiving oxygen therapy via nasal cannula at 2 L/min suddenly shows drowsiness and respiratory rate drops to 8 breaths/min. PaCO2 is 65 mmHg. What is the immediate nursing action?",
+        stem_formatted: "A COPD patient on 2 L/min O2 exhibits <span class='trigger-word'>drowsiness</span>, RR 8/min, and <span class='trigger-word'>PaCO2 65 mmHg</span>. What is the immediate nursing action?",
+        options: [
+            { text: "Prepare bag-valve-mask ventilation and decrease oxygen flow", correct: true, hl: "Prepare bag-valve-mask" },
+            { text: "Increase oxygen flow rate to ten liters per minute via non-rebreather", correct: false, hl: "Increase oxygen flow" },
+            { text: "Administer intravenous bolus of sedatives to relieve distress", correct: false, hl: "Administer intravenous bolus" },
+            { text: "Encourage deep breathing exercises every four hours standard", correct: false, hl: "Encourage deep breathing" }
+        ],
+        intent: "Menguji kemampuan mengidentifikasi Hypoxic Drive Suppression dan CO2 Narcosis pada pasien COPD.",
+        rationale: "Oksigen berlebih pada pasien COPD dapat menghentikan dorongan napas hipoksik (hypoxic drive), menyebabkan retensi CO2 parah dan depresi napas yang butuh bantuan ventilasi."
+    },
+    {
+        id: "MAT-01",
+        category: "Maternity & OB Nursing",
+        stem_raw: "A pregnant client at 36 weeks gestation presents with dark vaginal bleeding, severe abdominal pain, and a board-like rigid uterus. What condition should the nurse suspect?",
+        stem_formatted: "A client at 36 weeks gestation presents with dark bleeding, pain, and <span class='trigger-word'>board-like rigid uterus</span>. What condition is suspected?",
+        options: [
+            { text: "Abruptio Placentae requiring immediate fetal delivery monitoring", correct: true, hl: "Abruptio Placentae" },
+            { text: "Placenta Previa requiring routine outpatient vaginal examination", correct: false, hl: "Placenta Previa" },
+            { text: "Uterine Atony requiring immediate fundal massage therapy", correct: false, hl: "Uterine Atony" },
+            { text: "Cervical Incompetence requiring immediate placement of cerclage", correct: false, hl: "Cervical Incompetence" }
+        ],
+        intent: "Menguji diferensiasi klinis antara Abruptio Placentae (nyeri + uterus keras) dan Placenta Previa (perdarahan tanpa nyeri).",
+        rationale: "Uterus keras seperti papan (board-like rigidity) disertai nyeri hebat adalah tanda klasik solusio plasenta (Abruptio Placentae), merupakan kegawatdaruratan obstetri."
+    },
+    {
+        id: "PED-01",
+        category: "Pediatric Nursing",
+        stem_raw: "A 2-year-old child is brought to the emergency department with suspected Epiglottitis, presenting with drooling, stridor, and tripod position. What procedure is STRICTLY contraindicated?",
+        stem_formatted: "A 2-year-old child with suspected Epiglottitis presents with drooling and tripod position. What is <span class='trigger-word'>STRICTLY contraindicated</span>?",
+        options: [
+            { text: "Inspecting the throat using a tongue depressor or swab", correct: true, hl: "Inspecting the throat" },
+            { text: "Administering humidified oxygen via continuous blow-by mask", correct: false, hl: "Administering humidified" },
+            { text: "Keeping the child in a comfortable upright seated position", correct: false, hl: "Keeping the child" },
+            { text: "Preparing emergency tracheostomy equipment at the bedside", correct: false, hl: "Preparing emergency" }
+        ],
+        intent: "Menguji pencegahan spasme saluran napas total pada kasus Epiglottitis anak.",
+        rationale: "Pemeriksaan tenggorokan dengan tongue depressor dapat memicu laryngospasm mendadak dan menyumbat jalan napas secara total."
     }
 ];
 
-function generateScaledBank(count, offset = 0) {
-    let list = [];
-    for (let i = 0; i < count; i++) {
-        let base = scfhsBaseBank[(i + offset) % scfhsBaseBank.length];
-        let opts = base.options.map(o => o.text);
-        let correctOpt = base.options.find(o => o.correct).text;
-        opts.sort(() => Math.random() - 0.5);
-        list.push({
-            q: `[Item ${i + 1}] ${base.stem_raw}`,
-            stem_formatted: `[Item ${i + 1}] ${base.stem_formatted}`,
-            options: opts,
-            options_raw: base.options,
-            correct: correctOpt,
-            intent: base.intent,
-            rationale: base.rationale
-        });
-    }
-    return list;
+// SHUFFLE ALGORITHM FOR UNIQUE EXAM SETS
+function getRandomUniqueQuestions(count) {
+    let pool = [...scfhsUniqueRepository];
+    pool.sort(() => Math.random() - 0.5);
+    let selected = pool.slice(0, Math.min(count, pool.length));
+    
+    return selected.map((item, idx) => ({
+        q: `[Item ${idx + 1}] ${item.stem_raw}`,
+        stem_formatted: `[Item ${idx + 1}] ${item.stem_formatted}`,
+        options: item.options.map(o => o.text).sort(() => Math.random() - 0.5),
+        options_raw: item.options,
+        correct: item.options.find(o => o.correct).text,
+        intent: item.intent,
+        rationale: item.rationale
+    }));
 }
-
-const preTestQuestions = generateScaledBank(100, 0);
-const postTestQuestions = generateScaledBank(250, 1);
 
 let currentUser = null;
 let currentTestType = null;
@@ -386,7 +435,7 @@ function initDefaultData() {
         db['081901685253'] = {
             name: "Giyono",
             phone: "081901685253",
-            preScore: 70,
+            preScore: 71,
             postScore: null
         };
         localStorage.setItem('scfhs_app_db', JSON.stringify(db));
@@ -450,7 +499,7 @@ function logoutUser() {
 
 function startTest(type) {
     currentTestType = type;
-    currentQuestions = type === 'pre' ? preTestQuestions : postTestQuestions;
+    currentQuestions = getRandomUniqueQuestions(type === 'pre' ? 5 : 7);
     currentQIndex = 0;
     userAnswers = new Array(currentQuestions.length).fill(null);
 
@@ -501,10 +550,9 @@ function finishTest() {
     document.getElementById('view-test').classList.add('hidden');
     document.getElementById('view-result').classList.remove('hidden');
     document.getElementById('score-val').innerText = finalScore;
-    document.getElementById('score-detail').innerText = `You correctly answered ${scoreCount} out of ${currentQuestions.length} items.`;
+    document.getElementById('score-detail').innerText = `You correctly answered ${scoreCount} out of ${currentQuestions.length} unique items.`;
 }
 
-// PASSCODE MODAL CONTROLS
 function openPassModal() {
     document.getElementById('modal-passcode').classList.remove('hidden');
     document.getElementById('input-operator-pass').focus();
@@ -525,7 +573,6 @@ function verifyPasscode() {
     }
 }
 
-// KEYBOARD SHORTCUT (Ctrl + Shift + K)
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.shiftKey && (e.key === 'K' || e.key === 'k')) {
         e.preventDefault();
@@ -545,18 +592,15 @@ function openAdminConsole() {
 }
 
 function inspectSet(type) {
-    let bank = type === 'pre' ? preTestQuestions : postTestQuestions;
-    let title = type === 'pre' ? 'Pre-Test Repository (100 Items)' : 'Post-Test Repository (250 Items)';
-
     document.getElementById('view-admin').classList.add('hidden');
     document.getElementById('view-inspector').classList.remove('hidden');
-    document.getElementById('inspector-title').innerText = title;
+    document.getElementById('inspector-title').innerText = 'Unique Master Repository Inspection';
 
     let container = document.getElementById('inspector-content');
     container.innerHTML = '';
 
-    bank.forEach((item, index) => {
-        let optionsHtml = item.options_raw.map(opt => {
+    scfhsUniqueRepository.forEach((item, index) => {
+        let optionsHtml = item.options.map(opt => {
             let isCorrect = opt.correct;
             let classColor = isCorrect ? 'hl-green' : 'hl-red';
             return `
@@ -568,7 +612,8 @@ function inspectSet(type) {
 
         container.innerHTML += `
             <div class="card">
-                <h4 style="margin-bottom:10px;">${item.stem_formatted}</h4>
+                <span class="badge bg-blue" style="margin-bottom:10px;">${item.category}</span>
+                <h4 style="margin-bottom:10px; margin-top:5px;">${item.stem_formatted}</h4>
                 <ul style="padding-left:20px; font-size:14px; margin-top:5px;">
                     ${optionsHtml}
                 </ul>
